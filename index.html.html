@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tocmanchin</title>
+<style>
+:root{--p1:#00c2a8;--p2:#ff7a1a;--ink:#2a1a5e;--paper:#fffdf7;--acc:#7b3fe4;--acc2:#ff3d8b;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%}
+body{font-family:"Trebuchet MS","Segoe UI",system-ui,sans-serif;color:var(--ink);-webkit-user-select:none;user-select:none;
+background:radial-gradient(circle at 20% 10%,#ffd6f0 0,transparent 45%),radial-gradient(circle at 85% 90%,#bff5ea 0,transparent 45%),linear-gradient(160deg,#cdbcff,#8fb4ff)}
+.screen{display:none;height:100%;max-width:480px;margin:0 auto;padding:12px 14px;flex-direction:column;align-items:center}
+.screen.on{display:flex}
+.logo{width:120px;height:120px;margin-top:14px;animation:float 3s ease-in-out infinite}
+@keyframes float{50%{transform:translateY(-8px) rotate(3deg)}}
+h1{font-size:46px;margin:10px 0 0;font-weight:900;background:linear-gradient(90deg,var(--acc),var(--acc2));-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 3px 0 rgba(255,255,255,.7))}
+.sub{font-weight:900;letter-spacing:3px;font-size:13px;margin:2px 0 16px}
+.btn{border:0;border-radius:18px;padding:14px 20px;font:inherit;font-weight:900;font-size:18px;color:#fff;cursor:pointer;box-shadow:0 5px 0 rgba(0,0,0,.28);width:100%;max-width:340px;margin:6px 0;transition:transform .08s}
+.btn:active{transform:translateY(4px);box-shadow:0 1px 0 rgba(0,0,0,.28)}
+.lv{display:flex;flex-direction:column;align-items:center;width:100%}
+.cp1{background:#3a6bff}.l6e{background:#12b076}.l2nde{background:#ff8a00}.lic{background:#8a2be2}.prof{background:linear-gradient(90deg,#ffc400,#ff7a00);color:#2a1a5e}
+.main{background:linear-gradient(90deg,var(--acc),var(--acc2))}.alt{background:linear-gradient(90deg,var(--p1),#2f9bff)}.ghost{background:#5b4a9a}.gold{background:#ffb400;color:#2a1a5e}
+.top{width:100%;display:flex;justify-content:space-between;align-items:center;font-weight:800;font-size:13px}
+.ic{background:#fff;border:0;border-radius:50%;width:40px;height:40px;font-size:17px;font-weight:900;cursor:pointer;color:var(--ink);box-shadow:0 3px 0 rgba(0,0,0,.2)}
+.cards{display:flex;gap:10px;width:100%;margin:8px 0 4px}
+.card{flex:1;display:flex;align-items:center;gap:10px;background:#fff;border-radius:18px;padding:8px 10px;border:3px solid transparent;box-shadow:0 3px 0 rgba(0,0,0,.18);transition:.2s}
+.card.act{transform:scale(1.04);animation:glow 1.2s infinite}
+#c1.act{border-color:var(--p1)}#c2.act{border-color:var(--p2)}
+@keyframes glow{50%{box-shadow:0 0 18px 3px rgba(123,63,228,.55)}}
+.av{width:40px;height:40px;border-radius:50%;color:#fff;font-weight:900;display:flex;align-items:center;justify-content:center}
+.nm{font-size:12px;font-weight:800;opacity:.75}.sc{font-size:28px;font-weight:900;line-height:1}
+.sc.bump{animation:bump .4s}@keyframes bump{40%{transform:scale(1.5)}}
+#msg{font-weight:900;font-size:18px;height:26px;margin:2px 0 4px}
+.sheet{background:var(--paper);border-radius:20px;width:100%;flex:1;min-height:0;position:relative;overflow:hidden;box-shadow:0 5px 0 rgba(0,0,0,.2),0 0 0 4px #fff}
+.sheet:before{content:"";position:absolute;left:12px;top:0;bottom:0;width:2px;background:#ff7a9a}
+svg{width:100%;height:100%;display:block}
+.pop{animation:pop .45s ease-out;transform-box:fill-box;transform-origin:center}
+@keyframes pop{0%{transform:scale(.2);opacity:0}70%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
+.pulse{animation:pulse .9s infinite}@keyframes pulse{50%{opacity:.25}}
+.tools{display:flex;gap:8px;width:100%;margin-top:8px}
+.tools .btn{margin:0;font-size:14px;padding:10px;max-width:none;flex:1}
+.nm small{color:var(--acc2);font-weight:900}
+.tb{height:6px;border-radius:3px;background:#0001;margin-top:3px;overflow:hidden}.tb i{display:block;height:100%;width:0;background:var(--acc)}
+input{font:inherit;font-weight:900;font-size:26px;text-align:center;letter-spacing:6px;text-transform:uppercase;border:3px solid var(--acc);border-radius:14px;padding:8px;width:100%;max-width:220px;margin:8px 0;-webkit-user-select:text;user-select:text;color:var(--ink)}
+#menu{overflow-y:auto;justify-content:flex-start;position:relative}
+#menu .logo{width:100px;height:100px;margin-top:6px}
+#menu h1{font-size:40px;margin-top:4px;font-family:"Chalkboard SE","Comic Sans MS","Trebuchet MS",sans-serif}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%;max-width:340px;margin-top:12px}
+.tile{position:relative;border:0;border-radius:20px;color:#fff;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;padding:14px 8px 12px;font:inherit;overflow:hidden;
+box-shadow:0 6px 0 rgba(0,0,0,.3),inset 0 2px 0 rgba(255,255,255,.35);transition:transform .08s;width:100%}
+.tile:before{content:"";position:absolute;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.14);top:-30px;left:-30px}
+.tile:active{transform:translateY(5px);box-shadow:0 1px 0 rgba(0,0,0,.3),inset 0 2px 0 rgba(255,255,255,.35)}
+.tile b{font-size:20px;font-weight:900;letter-spacing:1px;text-shadow:0 2px 0 rgba(0,0,0,.25);position:relative;font-family:"Chalkboard SE","Comic Sans MS","Trebuchet MS",sans-serif}
+.tile small{font-size:12px;font-weight:800;opacity:.92;position:relative}
+.ti{width:44px;height:44px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;font-size:23px;box-shadow:0 3px 0 rgba(0,0,0,.2);position:relative;margin-bottom:2px}
+.tile.big{grid-column:1/3;background:linear-gradient(135deg,#7b3fe4,#ff3d8b);padding:18px 8px 16px}.tile.big b{font-size:26px}
+.tile.tl{background:linear-gradient(135deg,#00c2a8,#2f9bff)}.tile.or{background:linear-gradient(135deg,#ffa31a,#ff5a1a)}
+.rbs{display:flex;gap:14px;margin:18px 0 6px;justify-content:center}
+.rb{width:54px;height:54px;border-radius:50%;border:0;font-size:24px;cursor:pointer;color:#fff;background:linear-gradient(160deg,#4a5bff,#2a2fb8);box-shadow:0 5px 0 rgba(0,0,0,.3),inset 0 2px 0 rgba(255,255,255,.4)}
+.rb:active{transform:translateY(4px);box-shadow:0 1px 0 rgba(0,0,0,.3)}
+.dk{position:fixed;width:120px;height:120px;border-radius:14px;box-shadow:0 5px 14px rgba(42,26,94,.35);pointer-events:none;z-index:0;
+background:radial-gradient(circle at 28% 30%,#00c2a8 0 9px,transparent 10px),radial-gradient(circle at 62% 30%,#00c2a8 0 9px,transparent 10px),radial-gradient(circle at 28% 62%,#00c2a8 0 9px,transparent 10px),radial-gradient(circle at 62% 62%,#00c2a8 0 9px,transparent 10px),radial-gradient(circle at 82% 82%,#ff7a1a 0 9px,transparent 10px),linear-gradient(#e0dbf2 1px,transparent 1px) 0 0/20px 20px,linear-gradient(90deg,#e0dbf2 1px,transparent 1px) 0 0/20px 20px,#fffdf7}
+.dk.b{background:radial-gradient(circle at 30% 30%,#ff7a1a 0 9px,transparent 10px),radial-gradient(circle at 70% 30%,#ff7a1a 0 9px,transparent 10px),radial-gradient(circle at 30% 70%,#00c2a8 0 9px,transparent 10px),radial-gradient(circle at 70% 70%,#ff7a1a 0 9px,transparent 10px),linear-gradient(#e0dbf2 1px,transparent 1px) 0 0/20px 20px,linear-gradient(90deg,#e0dbf2 1px,transparent 1px) 0 0/20px 20px,#fffdf7}
+.st{position:fixed;font-size:20px;pointer-events:none;animation:tw 2s infinite;z-index:0}@keyframes tw{50%{opacity:.2;transform:scale(.6)}}
+#menu>*:not(.dk):not(.st){position:relative;z-index:1}
+.ad{width:100%;max-width:340px;min-height:50px;margin:8px 0 2px;border-radius:10px;background:repeating-linear-gradient(45deg,#ffffff88 0 8px,#ffffff44 8px 16px);border:2px dashed #7b3fe4aa;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#5b4a9a}
+.ov{position:absolute;inset:0;background:rgba(42,26,94,.85);display:none;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:20px;text-align:center;color:#fff;z-index:5}
+.ov.on{display:flex}.ov h2{font-size:34px;margin:0 0 8px}
+.full{position:fixed;inset:0;z-index:9;background:rgba(20,10,50,.92);display:none;flex-direction:column;align-items:center;justify-content:center;color:#fff;gap:12px}
+.full.on{display:flex}.full .ad{max-width:300px;min-height:250px;color:#fff;background:#ffffff22}
+</style>
+</head>
+<body>
+<div id="menu" class="screen on">
+<svg class="logo" viewBox="0 0 100 100"><rect x="6" y="6" width="88" height="88" rx="16" fill="#fffdf7" stroke="#fff" stroke-width="3"/><line x1="18" y1="6" x2="18" y2="94" stroke="#ff7a9a" stroke-width="2"/><rect x="34" y="28" width="26" height="26" fill="#00c2a833" stroke="#00c2a8" stroke-width="3"/><g fill="#00c2a8"><circle cx="34" cy="28" r="6"/><circle cx="60" cy="28" r="6"/><circle cx="34" cy="54" r="6"/><circle cx="60" cy="54" r="6"/></g><g fill="#ff7a1a"><circle cx="76" cy="54" r="6"/><circle cx="50" cy="78" r="6"/><circle cx="76" cy="78" r="6"/></g></svg>
+<h1>Tocmanchin</h1><div class="sub">LE JEU DE LA COUR</div>
+<div class="dk" style="top:-30px;left:-34px;transform:rotate(-18deg)"></div>
+<div class="dk b" style="top:30px;right:-40px;transform:rotate(14deg)"></div>
+<div class="dk b" style="bottom:60px;left:-44px;transform:rotate(12deg)"></div>
+<div class="dk" style="bottom:-20px;right:-36px;transform:rotate(-12deg)"></div>
+<span class="st" style="top:90px;left:20px">⭐</span><span class="st" style="top:150px;right:26px;animation-delay:.7s">✨</span><span class="st" style="bottom:200px;right:20px;animation-delay:1.2s">⭐</span>
+<div class="lv" id="home">
+<div class="grid">
+<button class="tile big" onclick="show('levels')"><span class="ti">🤖</span><b>JOUER CONTRE L’IA</b><small>choisis ton niveau</small></button>
+<button class="tile tl" onclick="start('pvp')"><span class="ti">👥</span><b>2 JOUEURS</b><small>sur le même écran</small></button>
+<button class="tile or" onclick="start('ai',4)"><span class="ti">🎓</span><b>DÉFI</b><small>Professeur · 30 s</small></button>
+</div>
+<div class="rbs">
+<button class="rb" id="sndb" onclick="toggleSnd()">🔊</button>
+<button class="rb" id="musb" onclick="toggleMusic()">🎵</button>
+<button class="rb" onclick="$('rules').classList.add('on')">ℹ️</button>
+</div>
+</div>
+<div class="lv" id="levels" style="display:none">
+<div class="sub" style="margin:0 0 4px">CHOISIS TON NIVEAU</div>
+<button class="btn prof" onclick="start('ai',4)">🎓 PROFESSEUR</button>
+<button class="btn lic" onclick="start('ai',3)">Licence</button>
+<button class="btn l2nde" onclick="start('ai',2)">2nde</button>
+<button class="btn l6e" onclick="start('ai',1)">6e</button>
+<button class="btn cp1" onclick="start('ai',0)">CP1</button>
+<button class="btn ghost" onclick="show('home')">Retour</button>
+</div>
+<div class="ad" data-ad="banner"></div>
+</div>
+
+<div id="game" class="screen">
+<div class="top"><button class="ic" onclick="toMenu()">‹</button><div id="info"></div><button class="ic" id="pauseb" onclick="pause(true)">❚❚</button></div>
+<div class="cards">
+<div class="card" id="c1"><div class="av" style="background:var(--p1)">A</div><div><div class="nm"><span id="n1">Joueur 1</span> <small id="tt1"></small></div><div class="sc" id="s1">0</div><div class="tb"><i id="tb1"></i></div></div></div>
+<div class="card" id="c2"><div class="av" style="background:var(--p2)">I</div><div><div class="nm"><span id="n2">Invité</span> <small id="tt2"></small></div><div class="sc" id="s2">0</div><div class="tb"><i id="tb2"></i></div></div></div>
+</div>
+<div id="msg"></div>
+<div class="sheet"><svg id="board" viewBox="0 0 360 410" preserveAspectRatio="xMidYMid meet"></svg>
+<div class="ov" id="ovp"><h2>⏸ Pause</h2><button class="btn main" onclick="pause(false)">Reprendre</button><button class="btn ghost" onclick="toMenu()">Menu</button></div>
+<div class="ov" id="ove"><h2 id="eh"></h2><div id="et" style="font-size:22px;font-weight:900;margin-bottom:12px"></div><button class="btn main" onclick="next()">Manche suivante ▶</button><button class="btn ghost" onclick="toMenu()">Menu</button></div>
+</div>
+<div class="tools"><button class="btn gold" id="hintb" onclick="hint()">💡 Indice (pub)</button></div>
+<div class="ad" data-ad="banner"></div>
+</div>
+
+<div class="full" id="rules"><h2 style="margin:0">Comment jouer ?</h2><div style="max-width:320px;font-weight:700;line-height:1.55;font-size:15px">✏️ Chacun son tour, pose un point de ta couleur sur une intersection libre.<br>🟩 Forme un petit carré : 4 points de ta couleur aux coins d’une case = 1 point.<br>🛡️ Bloque l’adversaire en posant ton point dans la case qu’il veut former.<br>🏆 Celui qui a le plus de carrés gagne.<br>⏱️ Licence et Professeur : 30 secondes par coup.</div><button class="btn main" style="max-width:240px" onclick="$('rules').classList.remove('on')">Compris !</button></div>
+<div class="full" id="adfull"><div id="adt" style="font-weight:900">Publicité</div><div class="ad" data-ad="rect"></div><button class="btn ghost" id="adc" style="max-width:240px" disabled>Patientez…</button></div>
+
+<script>
+/* ====== RÉGLAGES PUB ======
+   Une fois le jeu en ligne sur TON site : mets ton identifiant Google AdSense
+   (ex. 'ca-pub-1234567890123456') et tes identifiants d'emplacements ci-dessous.
+   Laisse vide pour afficher des espaces de démonstration. */
+const ADS={enabled:true,client:'',bannerSlot:'',rectSlot:'',interEvery:2,rewarded:true,seconds:5};
+
+const C=7,R=8,N=C*R,G=50,O=30,COL=['','#00c2a8','#ff7a1a'];
+const pt=i=>[i%C,(i/C)|0];
+/* Uniquement les petits carrés (cases 1×1, sans inclinaison) */
+const SQ=[],AT=Array.from({length:N},()=>[]);
+for(let y=0;y<R-1;y++)for(let x=0;x<C-1;x++){const q=[y*C+x,y*C+x+1,(y+1)*C+x+1,(y+1)*C+x];SQ.push(q);q.forEach(n=>AT[n].push(q))}
+let mode,lvl,board,sc,turn,won,over,busy,paused,manche=0,hintI=-1,last=-1,popQ=null;
+const $=e=>document.getElementById(e);
+function show(w){$('home').style.display=w==='home'?'flex':'none';$('levels').style.display=w==='levels'?'flex':'none'}
+function scr(n){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));$(n).classList.add('on')}
+function toMenu(){pause(false);busy=true;stopTimer();$('ove').classList.remove('on');scr('menu');show('home')}
+function start(m,l){mode=m;lvl=l;manche=0;$('n2').textContent=m==='ai'?'Invité (IA)':'Joueur 2';reset();scr('game')}
+function reset(){manche++;board=Array(N).fill(0);sc=[0,0,0];won=[];turn=1;over=false;busy=false;hintI=-1;last=-1;$('ove').classList.remove('on');$('hintb').style.display=ADS.enabled&&ADS.rewarded?'':'none';draw();startTurn()}
+function next(){const go=()=>reset();if(ADS.enabled&&manche%ADS.interEvery===0)showAd(go);else go()}
+function pause(v){paused=v;$('ovp').classList.toggle('on',v)}
+function count(p,i){return AT[i].filter(q=>q.every(k=>k===i||board[k]===p))}
+function alive(q){const a=q.some(k=>board[k]===1),b=q.some(k=>board[k]===2);if(a&&b)return false;return !(q.every(k=>board[k]===1)||q.every(k=>board[k]===2))}
+function play(i){if(over||board[i])return;stopTimer();board[i]=turn;last=i;hintI=-1;const s=count(turn,i);
+s.forEach(q=>won.push({p:turn,q,n:1}));sc[turn]+=s.length;if(s.length)sfx.square();else sfx.place(turn);
+$('s'+turn).classList.remove('bump');void $('s'+turn).offsetWidth;if(s.length)$('s'+turn).classList.add('bump');
+if(!SQ.some(alive)||board.every(v=>v)){over=true;draw();finish();return}
+turn=3-turn;draw();if(mode==='ai'&&turn===2){busy=true;setTimeout(ai,600)}else busy=false;startTurn()}
+function finish(){const t=sc[1]===sc[2]?'🤝 Égalité !':'🏆 '+(sc[1]>sc[2]?$('n1').textContent:$('n2').textContent)+' gagne !';$('eh').textContent=t;$('et').textContent=sc[1]+' – '+sc[2];setTimeout(()=>{$('ove').classList.add('on');(sc[1]===sc[2]?sfx.click():((mode==='ai'&&sc[2]>sc[1])?sfx.lose():sfx.win()))},700)}
+function pick(level){const em=[];board.forEach((v,i)=>{if(!v)em.push(i)});
+if(Math.random()<[1,.5,.2,.05,0][level])return em[Math.random()*em.length|0];
+let best=-1,bs=-1e9;
+for(const i of em){let s=Math.random()*3;const p=turn;
+s+=count(p,i).length*100;
+if(level>=2)s+=count(3-p,i).length*60;
+s+=AT[i].filter(alive).length*2;
+if(level>=3){let t=0;for(const q of AT[i]){const o=q.filter(k=>k!==i);if(o.every(k=>board[k]!==3-p)){const m=o.filter(k=>board[k]===p).length,e=o.filter(k=>!board[k]).length;if(m===2&&e===1)t++}}s+=t*10;if(level>=4&&t>=2)s+=50;
+if(level>=4){for(const q of AT[i]){const o=q.filter(k=>k!==i);if(o.filter(k=>board[k]===3-p).length===2&&o.filter(k=>!board[k]).length===1&&!o.some(k=>board[k]===p))s+=8}}}
+if(s>bs){bs=s;best=i}}return best}
+function ai(){if(paused){setTimeout(ai,400);return}play(pick(lvl))}
+function hint(){if(over||busy)return;const go=()=>{hintI=pick(4);draw();setTimeout(()=>{hintI=-1;draw()},3000)};if(ADS.enabled&&ADS.rewarded)showAd(go);else go()}
+function draw(){const sv=$('board');let h='';
+for(let x=0;x<C;x++)h+=`<line x1="${O+x*G}" y1="${O-18}" x2="${O+x*G}" y2="${O+(R-1)*G+18}" stroke="#e0dbf2" stroke-width="1"/>`;
+for(let y=0;y<R;y++)h+=`<line x1="${O-18}" y1="${O+y*G}" x2="${O+(C-1)*G+18}" y2="${O+y*G}" stroke="#e0dbf2" stroke-width="1"/>`;
+won.forEach(w=>{const c=w.q.map(pt);h+=`<polygon class="${w.n?'pop':''}" points="${c.map(p=>(O+p[0]*G)+','+(O+p[1]*G)).join(' ')}" fill="${COL[w.p]}44" stroke="${COL[w.p]}" stroke-width="4" stroke-linejoin="round"/>`;w.n=0});
+for(let i=0;i<N;i++){const[x,y]=pt(i),px=O+x*G,py=O+y*G;
+if(board[i])h+=`<circle ${i===last?'class="pop"':''} cx="${px}" cy="${py}" r="10" fill="${COL[board[i]]}" stroke="#fff" stroke-width="2"/>`;
+else h+=`<circle cx="${px}" cy="${py}" r="3.5" fill="#8b84a6"/><circle data-i="${i}" cx="${px}" cy="${py}" r="22" fill="transparent" style="cursor:pointer"/>`;
+if(i===hintI)h+=`<circle class="pulse" cx="${px}" cy="${py}" r="17" fill="none" stroke="#ffb400" stroke-width="5"/>`}
+sv.innerHTML=h;
+$('s1').textContent=sc[1];$('s2').textContent=sc[2];
+$('c1').classList.toggle('act',!over&&turn===1);$('c2').classList.toggle('act',!over&&turn===2);
+$('info').textContent='Manche '+manche+' · '+(won.length)+' / '+SQ.length+' carrés';
+$('msg').style.color=COL[turn];
+$('msg').textContent=over?'Partie terminée':(turn===1?'À toi, Joueur 1 ✏️':(mode==='ai'?'L’invité réfléchit…':'À toi, Joueur 2 ✏️'))}
+$('board').addEventListener('click',e=>{const i=e.target.dataset&&e.target.dataset.i;if(i==null||busy||paused||over)return;play(+i)});
+
+/* son & musique */
+let ac,snd=true,music=true,mt=null,step=0;
+function A(){try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();if(ac.state==='suspended')ac.resume();return ac}catch(e){return null}}
+function tone(f,d,type='triangle',v=.09,delay=0,slide=0,isM=false){if(!(isM?music:snd))return;const c=A();if(!c)return;const t=c.currentTime+delay,o=c.createOscillator(),g=c.createGain();o.type=type;o.frequency.setValueAtTime(f,t);if(slide)o.frequency.exponentialRampToValueAtTime(f*slide,t+d);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(v,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+d+.02)}
+const sfx={place:p=>{tone(p===1?520:392,.14,'triangle',.13,0,.6);tone(p===1?1040:784,.06,'sine',.05)},
+square:()=>{[523,659,784,1047,1319].forEach((f,i)=>tone(f,.25,'sine',.11,i*.07));tone(2093,.4,'sine',.04,.35)},
+tick:s=>tone(s<=3?1200:900,.07,'square',.05),
+win:()=>{[523,659,784,659,784,1047].forEach((f,i)=>tone(f,.28,'triangle',.13,i*.14));tone(1319,.6,'sine',.1,.9)},
+lose:()=>[392,349,330,262].forEach((f,i)=>tone(f,.3,'sawtooth',.06,i*.18)),
+click:()=>tone(700,.05,'square',.04)};
+const MEL=[523,0,659,0,784,659,0,587,523,0,659,0,880,784,0,0,587,0,698,0,880,784,0,659,587,0,523,0,659,0,0,0],BAS=[131,0,0,0,196,0,0,0,165,0,0,0,196,0,0,0];
+function mtick(){const m=MEL[step%MEL.length],b=BAS[step%BAS.length];if(m)tone(m,.2,'sine',.035,0,0,true);if(b)tone(b,.4,'triangle',.05,0,0,true);step++}
+function musicOn(){clearInterval(mt);mt=setInterval(mtick,210)}
+function toggleSnd(){snd=!snd;$('sndb').textContent=snd?'🔊':'🔇'}
+function toggleMusic(){music=!music;$('musb').textContent=music?'🎵':'🔕';if(music)musicOn();else{clearInterval(mt);mt=null}}
+document.addEventListener('pointerdown',()=>{A();if(music&&!mt)musicOn()});
+document.addEventListener('click',e=>{if(e.target.closest('.btn,.ic,.tile,.rb'))sfx.click()});
+
+/* minuteur 30 s (Licence, Professeur) */
+let dl=0,tiv=null,lastTick=-1;
+const timed=()=>(mode==='ai'&&lvl>=3);
+function stopTimer(){clearInterval(tiv);tiv=null;['1','2'].forEach(n=>{$('tb'+n).style.width='0';$('tt'+n).textContent=''})}
+function startTurn(){stopTimer();if(over||!timed()||(mode==='ai'&&turn===2))return;dl=Date.now()+30000;lastTick=-1;tiv=setInterval(tick,200);tick()}
+function tick(){if(paused){dl+=200;return}const left=Math.max(0,dl-Date.now()),s=Math.ceil(left/1000);
+$('tb'+turn).style.width=(left/300)+'%';$('tb'+turn).style.background=s<=5?'#ff3b3b':'';$('tt'+turn).textContent=s+' s';
+if(s<=5&&s>0&&s!==lastTick){lastTick=s;sfx.tick(s)}
+if(left<=0){stopTimer();timeout()}}
+function timeout(){const em=[];board.forEach((v,i)=>{if(!v)em.push(i)});const g=em.filter(i=>AT[i].some(alive)),l=g.length?g:em,i=l[Math.random()*l.length|0];
+play(i)}
+
+/* publicité */
+function mountAd(el){const t=el.dataset.ad,slot=t==='rect'?ADS.rectSlot:ADS.bannerSlot;
+if(!ADS.enabled){el.style.display='none';return}
+if(ADS.client&&slot){el.style.border='0';el.style.background='none';el.innerHTML=`<ins class="adsbygoogle" style="display:block;width:100%" data-ad-client="${ADS.client}" data-ad-slot="${slot}" data-ad-format="auto" data-full-width-responsive="true"></ins>`;try{(window.adsbygoogle=window.adsbygoogle||[]).push({})}catch(e){}}
+else el.textContent=t==='rect'?'Espace publicitaire 300×250':'Espace publicitaire 320×50'}
+if(ADS.enabled&&ADS.client){const s=document.createElement('script');s.async=true;s.src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client='+ADS.client;s.crossOrigin='anonymous';document.head.appendChild(s)}
+document.querySelectorAll('.ad').forEach(mountAd);
+function showAd(cb){const f=$('adfull'),b=$('adc');let n=ADS.seconds;f.classList.add('on');b.disabled=true;b.textContent='Patientez '+n+' s…';
+const iv=setInterval(()=>{n--;if(n>0)b.textContent='Patientez '+n+' s…';else{clearInterval(iv);b.disabled=false;b.textContent='Fermer ✕ et continuer'}},1000);
+b.onclick=()=>{f.classList.remove('on');cb()}}
+</script>
+</body>
+</html>
