@@ -91,9 +91,9 @@ background:radial-gradient(circle at 28% 30%,#00c2a8 0 9px,transparent 10px),rad
 <span class="st" style="top:90px;left:20px">⭐</span><span class="st" style="top:150px;right:26px;animation-delay:.7s">✨</span><span class="st" style="bottom:200px;right:20px;animation-delay:1.2s">⭐</span>
 <div class="lv" id="home">
 <div class="grid">
-<button class="tile big" onclick="show('levels')"><span class="ti">🤖</span><b>JOUER CONTRE L’IA</b><small>choisis ton niveau</small></button>
+<button class="tile big" onclick="show('levels')"><span class="ti">🧭</span><b>AVENTURE SOLO</b><small>choisis ton niveau</small></button>
 <button class="tile tl" onclick="start('pvp')"><span class="ti">👥</span><b>2 JOUEURS</b><small>sur le même écran</small></button>
-<button class="tile or" onclick="start('ai',4)"><span class="ti">🎓</span><b>DÉFI</b><small>Professeur · 30 s</small></button>
+<button class="tile or" onclick="start('ai',4)"><span class="ti">🎓</span><b>DÉFI</b><small>Professeur · 10 s</small></button>
 </div>
 <div class="rbs">
 <button class="rb" id="sndb" onclick="toggleSnd()">🔊</button>
@@ -128,7 +128,7 @@ background:radial-gradient(circle at 28% 30%,#00c2a8 0 9px,transparent 10px),rad
 <div class="ad" data-ad="banner"></div>
 </div>
 
-<div class="full" id="rules"><h2 style="margin:0">Comment jouer ?</h2><div style="max-width:320px;font-weight:700;line-height:1.55;font-size:15px">✏️ Chacun son tour, pose un point de ta couleur sur une intersection libre.<br>🟩 Forme un petit carré : 4 points de ta couleur aux coins d’une case = 1 point.<br>🛡️ Bloque l’adversaire en posant ton point dans la case qu’il veut former.<br>🏆 Celui qui a le plus de carrés gagne.<br>⏱️ Licence et Professeur : 30 secondes par coup.</div><button class="btn main" style="max-width:240px" onclick="$('rules').classList.remove('on')">Compris !</button></div>
+<div class="full" id="rules"><h2 style="margin:0">Comment jouer ?</h2><div style="max-width:320px;font-weight:700;line-height:1.55;font-size:15px">✏️ Chacun son tour, pose un point de ta couleur sur une intersection libre.<br>🟩 Forme un petit carré : 4 points de ta couleur aux coins d’une case = 1 point.<br>🛡️ Bloque l’adversaire en posant ton point dans la case qu’il veut former.<br>🏆 Celui qui a le plus de carrés gagne.<br>⏱️ Licence : 30 secondes par coup. Professeur : 10 secondes.</div><button class="btn main" style="max-width:240px" onclick="$('rules').classList.remove('on')">Compris !</button></div>
 <div class="full" id="adfull"><div id="adt" style="font-weight:900">Publicité</div><div class="ad" data-ad="rect"></div><button class="btn ghost" id="adc" style="max-width:240px" disabled>Patientez…</button></div>
 
 <script>
@@ -149,7 +149,7 @@ function show(w){$('home').style.display=w==='home'?'flex':'none';$('levels').st
 function scr(n){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));$(n).classList.add('on')}
 function toMenu(){pause(false);busy=true;stopTimer();$('ove').classList.remove('on');scr('menu');show('home')}
 function start(m,l){mode=m;lvl=l;manche=0;$('n2').textContent=m==='ai'?'Invité (IA)':'Joueur 2';reset();scr('game')}
-function reset(){manche++;board=Array(N).fill(0);sc=[0,0,0];won=[];turn=1;over=false;busy=false;hintI=-1;last=-1;$('ove').classList.remove('on');$('hintb').style.display=ADS.enabled&&ADS.rewarded?'':'none';draw();startTurn()}
+function reset(){manche++;board=Array(N).fill(0);sc=[0,0,0];won=[];turn=Math.random()<.5?1:2;over=false;busy=false;hintI=-1;last=-1;$('ove').classList.remove('on');$('hintb').style.display=ADS.enabled&&ADS.rewarded?'':'none';draw();startTurn();if(mode==='ai'&&turn===2){busy=true;setTimeout(ai,900)}}
 function next(){const go=()=>reset();if(ADS.enabled&&manche%ADS.interEvery===0)showAd(go);else go()}
 function pause(v){paused=v;$('ovp').classList.toggle('on',v)}
 function count(p,i){return AT[i].filter(q=>q.every(k=>k===i||board[k]===p))}
@@ -170,7 +170,7 @@ s+=AT[i].filter(alive).length*2;
 if(level>=3){let t=0;for(const q of AT[i]){const o=q.filter(k=>k!==i);if(o.every(k=>board[k]!==3-p)){const m=o.filter(k=>board[k]===p).length,e=o.filter(k=>!board[k]).length;if(m===2&&e===1)t++}}s+=t*10;if(level>=4&&t>=2)s+=50;
 if(level>=4){for(const q of AT[i]){const o=q.filter(k=>k!==i);if(o.filter(k=>board[k]===3-p).length===2&&o.filter(k=>!board[k]).length===1&&!o.some(k=>board[k]===p))s+=8}}}
 if(s>bs){bs=s;best=i}}return best}
-function ai(){if(paused){setTimeout(ai,400);return}play(pick(lvl))}
+function ai(){if(over)return;if(paused){setTimeout(ai,400);return}play(pick(lvl))}
 function hint(){if(over||busy)return;const go=()=>{hintI=pick(4);draw();setTimeout(()=>{hintI=-1;draw()},3000)};if(ADS.enabled&&ADS.rewarded)showAd(go);else go()}
 function draw(){const sv=$('board');let h='';
 for(let x=0;x<C;x++)h+=`<line x1="${O+x*G}" y1="${O-18}" x2="${O+x*G}" y2="${O+(R-1)*G+18}" stroke="#e0dbf2" stroke-width="1"/>`;
@@ -208,11 +208,12 @@ document.addEventListener('click',e=>{if(e.target.closest('.btn,.ic,.tile,.rb'))
 
 /* minuteur 30 s (Licence, Professeur) */
 let dl=0,tiv=null,lastTick=-1;
+const TL=()=>lvl>=4?10:30;
 const timed=()=>(mode==='ai'&&lvl>=3);
 function stopTimer(){clearInterval(tiv);tiv=null;['1','2'].forEach(n=>{$('tb'+n).style.width='0';$('tt'+n).textContent=''})}
-function startTurn(){stopTimer();if(over||!timed()||(mode==='ai'&&turn===2))return;dl=Date.now()+30000;lastTick=-1;tiv=setInterval(tick,200);tick()}
+function startTurn(){stopTimer();if(over||!timed()||(mode==='ai'&&turn===2))return;dl=Date.now()+TL()*1000;lastTick=-1;tiv=setInterval(tick,200);tick()}
 function tick(){if(paused){dl+=200;return}const left=Math.max(0,dl-Date.now()),s=Math.ceil(left/1000);
-$('tb'+turn).style.width=(left/300)+'%';$('tb'+turn).style.background=s<=5?'#ff3b3b':'';$('tt'+turn).textContent=s+' s';
+$('tb'+turn).style.width=(left/(TL()*10))+'%';$('tb'+turn).style.background=s<=5?'#ff3b3b':'';$('tt'+turn).textContent=s+' s';
 if(s<=5&&s>0&&s!==lastTick){lastTick=s;sfx.tick(s)}
 if(left<=0){stopTimer();timeout()}}
 function timeout(){const em=[];board.forEach((v,i)=>{if(!v)em.push(i)});const g=em.filter(i=>AT[i].some(alive)),l=g.length?g:em,i=l[Math.random()*l.length|0];
