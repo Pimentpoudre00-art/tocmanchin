@@ -1,13 +1,6 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-   <script async src="https://www.googletagmanager.com/gtag/js?id=G-29BMNJ8TZJ"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-29BMNJ8TZJ');
-</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Tocmanchin</title>
@@ -222,9 +215,9 @@ $('msg').textContent=mode==='daily'?(over?'Terminé':'Il reste '+DQ.left+' coup'
 $('board').addEventListener('click',e=>{const i=e.target.dataset&&e.target.dataset.i;if(i==null||busy||paused||over)return;if(mode==='net'){sendMove(+i);return}play(+i)});
 
 /* son & musique */
-let ac,snd=true,music=true,mt=null,step=0;
+let ac,snd=true,music=true,mt=null,step=0,adMuted=false;
 function A(){try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();if(ac.state==='suspended')ac.resume();return ac}catch(e){return null}}
-function tone(f,d,type='triangle',v=.09,delay=0,slide=0,isM=false){if(!(isM?music:snd))return;const c=A();if(!c)return;const t=c.currentTime+delay,o=c.createOscillator(),g=c.createGain();o.type=type;o.frequency.setValueAtTime(f,t);if(slide)o.frequency.exponentialRampToValueAtTime(f*slide,t+d);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(v,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+d+.02)}
+function tone(f,d,type='triangle',v=.09,delay=0,slide=0,isM=false){if(adMuted||!(isM?music:snd))return;const c=A();if(!c)return;const t=c.currentTime+delay,o=c.createOscillator(),g=c.createGain();o.type=type;o.frequency.setValueAtTime(f,t);if(slide)o.frequency.exponentialRampToValueAtTime(f*slide,t+d);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(v,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+d+.02)}
 const sfx={place:p=>{tone(p===1?520:392,.14,'triangle',.13,0,.6);tone(p===1?1040:784,.06,'sine',.05)},
 square:()=>{[523,659,784,1047,1319].forEach((f,i)=>tone(f,.25,'sine',.11,i*.07));tone(2093,.4,'sine',.04,.35)},
 tick:s=>tone(s<=3?1200:900,.07,'square',.05),
@@ -387,23 +380,30 @@ if(g.rematch&&g.rematch.by!==uid()){acceptRematch();return}
 const gid2=NET.gid.split('~')[0]+'~'+Date.now().toString(36),first=NET.res<0?NET.me:(Math.random()<.5?1:2);
 await db('games/'+gid2,'PUT',{p1:g.p1,p2:g.p2,first,t:Date.now()});await db('games/'+NET.gid+'/rematch','PUT',{gid:gid2,by:uid()});NET.rmWait=Date.now();toast('Revanche demandée ⏳')}catch(e){toast('Connexion impossible')}}
 async function acceptRematch(){try{const g=await db('games/'+NET.gid),r=g&&g.rematch;if(!r)return;await db('games/'+NET.gid+'/rematch','PATCH',{acc:true});await joinGame(r.gid)}catch(e){toast('Connexion impossible')}}
-/* voix : WebRTC, signal échangé par la base */
-let pc=null,mySnd=null,micTrack=null,micOn=false,rcI=0;
-function closeRtc(){try{if(micTrack)micTrack.stop()}catch(e){}try{if(pc)pc.close()}catch(e){}pc=null;mySnd=null;micTrack=null;micOn=false;rcI=0;const b=$('micb');if(b)b.textContent='🎤 Micro : off'}
-async function startRtc(){if(typeof RTCPeerConnection==='undefined')return;closeRtc();const gid=NET.gid,me=NET.me;
-pc=new RTCPeerConnection({iceServers:[{urls:'stun:stun.l.google.com:19302'}]});
-mySnd=pc.addTransceiver('audio',{direction:'sendrecv'}).sender;
-let a=document.getElementById('rtcaudio');if(!a){a=document.createElement('audio');a.id='rtcaudio';a.autoplay=true;a.setAttribute('playsinline','');document.body.appendChild(a)}
-pc.ontrack=e=>{a.srcObject=(e.streams&&e.streams[0])||new MediaStream([e.track]);a.play().catch(()=>{})};
-let ci=0;pc.onicecandidate=e=>{if(e.candidate)db('games/'+gid+'/rtc/c'+me+'/'+(ci++),'PUT',e.candidate.toJSON()).catch(()=>{})};
-if(me===1){const o=await pc.createOffer();await pc.setLocalDescription(o);await db('games/'+gid+'/rtc/offer','PUT',{type:o.type,sdp:o.sdp})}}
+/* voix : WebRTC, signal échangé par la base — version renforcée */
+let pc=null,mySnd=null,micTrack=null,micStream=null,micOn=false,rcI=0,rtcWarned=0;
+function closeRtc(){try{if(micStream)micStream.getTracks().forEach(t=>t.stop())}catch(e){}try{if(pc)pc.close()}catch(e){}pc=null;mySnd=null;micTrack=null;micStream=null;micOn=false;rcI=0;rtcWarned=0;const b=$('micb');if(b)b.textContent='🎤 Micro : off';const a=document.getElementById('rtcaudio');if(a){try{a.pause();a.srcObject=null}catch(e){}}}
+async function startRtc(){
+ if(!window.RTCPeerConnection){toast('Chat vocal non pris en charge par ce navigateur');return}
+ if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){toast('Micro indisponible : utilise HTTPS et autorise le micro');return}
+ closeRtc();const gid=NET.gid,me=NET.me;
+ pc=new RTCPeerConnection({iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun.cloudflare.com:3478'}]});
+ pc.addTransceiver('audio',{direction:'sendrecv'});mySnd=pc.getSenders().find(x=>x.track&&x.track.kind==='audio')||pc.getTransceivers().find(x=>x.receiver.track.kind==='audio')?.sender;
+ let a=document.getElementById('rtcaudio');if(!a){a=document.createElement('audio');a.id='rtcaudio';a.autoplay=true;a.setAttribute('playsinline','');a.setAttribute('webkit-playsinline','');a.controls=false;a.muted=false;a.volume=1;document.body.appendChild(a)}
+ pc.ontrack=e=>{a.srcObject=(e.streams&&e.streams[0])||new MediaStream([e.track]);a.muted=false;a.volume=1;a.play().catch(()=>{toast('Appuie sur l’écran pour activer l’audio du joueur')})};
+ pc.onicecandidate=e=>{if(e.candidate)db('games/'+gid+'/rtc/c'+me+'/'+(ci++),'PUT',e.candidate.toJSON()).catch(()=>{})};
+ pc.onconnectionstatechange=()=>{if(pc&&pc.connectionState==='failed'&&!rtcWarned){rtcWarned=1;toast('Connexion vocale impossible sur ce réseau. Réessaie ou change de réseau.')}};
+ let ci=0;if(me===1){const o=await pc.createOffer();await pc.setLocalDescription(o);await db('games/'+gid+'/rtc/offer','PUT',{type:o.type,sdp:o.sdp})}
+}
 async function rtcPoll(g){if(!pc||!g.rtc)return;const r=g.rtc;try{
-if(NET.me===2&&r.offer&&!pc.remoteDescription){await pc.setRemoteDescription(r.offer);const an=await pc.createAnswer();await pc.setLocalDescription(an);await db('games/'+NET.gid+'/rtc/answer','PUT',{type:an.type,sdp:an.sdp})}
-if(NET.me===1&&r.answer&&!pc.remoteDescription)await pc.setRemoteDescription(r.answer);
-if(pc.remoteDescription){const cs=r['c'+(3-NET.me)]||{},arr=Array.isArray(cs)?cs:Object.values(cs);while(rcI<arr.length){const c=arr[rcI++];if(c)await pc.addIceCandidate(c).catch(()=>{})}}}catch(e){}}
-async function toggleMic(){if(!pc){toast('Micro indisponible sur cet appareil');return}
-if(micOn){try{micTrack.stop()}catch(e){}try{await mySnd.replaceTrack(null)}catch(e){}micTrack=null;micOn=false;$('micb').textContent='🎤 Micro : off';return}
-try{const st=await navigator.mediaDevices.getUserMedia({audio:true});micTrack=st.getAudioTracks()[0];await mySnd.replaceTrack(micTrack);micOn=true;$('micb').textContent='🎙️ Micro : on';const a=document.getElementById('rtcaudio');if(a)a.play().catch(()=>{})}catch(e){toast('Micro refusé ou indisponible 🎤')}}
+ if(NET.me===2&&r.offer&&!pc.remoteDescription){await pc.setRemoteDescription(r.offer);const an=await pc.createAnswer();await pc.setLocalDescription(an);await db('games/'+NET.gid+'/rtc/answer','PUT',{type:an.type,sdp:an.sdp})}
+ if(NET.me===1&&r.answer&&!pc.remoteDescription)await pc.setRemoteDescription(r.answer);
+ if(pc.remoteDescription){const cs=r['c'+(3-NET.me)]||{},arr=Array.isArray(cs)?cs:Object.keys(cs).sort((a,b)=>Number(a)-Number(b)).map(k=>cs[k]);while(rcI<arr.length){const c=arr[rcI++];if(c)await pc.addIceCandidate(c).catch(()=>{})}}
+ }catch(e){/* Une réponse ou un candidat peut arriver avant l'étape SDP : le poll suivant réessaie. */}}
+async function toggleMic(){if(!pc||!mySnd){toast('Connexion vocale en cours, réessaie dans un instant');return}
+ if(micOn){try{if(micStream)micStream.getTracks().forEach(t=>t.stop());await mySnd.replaceTrack(null)}catch(e){}micStream=null;micTrack=null;micOn=false;$('micb').textContent='🎤 Micro : off';return}
+ try{micStream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}});micTrack=micStream.getAudioTracks()[0];if(!micTrack)throw new Error('no audio track');await mySnd.replaceTrack(micTrack);micTrack.enabled=true;micOn=true;$('micb').textContent='🎙️ Micro : on';const a=document.getElementById('rtcaudio');if(a){a.muted=false;a.play().catch(()=>{})}}
+ catch(e){if(micStream)micStream.getTracks().forEach(t=>t.stop());micStream=null;micTrack=null;micOn=false;$('micb').textContent='🎤 Micro : off';if(e&&e.name==='NotAllowedError')toast('Autorise le micro dans les réglages du navigateur');else if(e&&e.name==='NotFoundError')toast('Aucun micro détecté');else toast('Micro inaccessible : vérifie les permissions et HTTPS')}}
 function leaveOnline(){clearInterval(NET.poll);stopLobby();closeRtc();if(NET.on&&!NET.done&&dbOn()&&NET.gid)db('games/'+NET.gid,'PATCH',{left:uid()}).catch(()=>{});NET.on=false;NET.done=0;sg=0;pz=0;$('pauseb').style.display='';$('micb').style.display='none';$('rvb').style.display='none';$('av1').textContent='A';$('av2').textContent='I'}
 applyEquip();refreshMenu();
 
@@ -414,9 +414,9 @@ if(ADS.client&&slot){el.style.border='0';el.style.background='none';el.innerHTML
 else el.textContent=t==='rect'?'Espace publicitaire 300×250':'Espace publicitaire 320×50'}
 if(ADS.enabled&&ADS.client){const s=document.createElement('script');s.async=true;s.src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client='+ADS.client;s.crossOrigin='anonymous';document.head.appendChild(s)}
 document.querySelectorAll('.ad').forEach(mountAd);
-function showAd(cb){const f=$('adfull'),b=$('adc');let n=ADS.seconds;f.classList.add('on');b.disabled=true;b.textContent='Patientez '+n+' s…';
+function showAd(cb){const f=$('adfull'),b=$('adc');let n=ADS.seconds;adMuted=true;clearInterval(mt);mt=null;f.classList.add('on');b.disabled=true;b.textContent='Patientez '+n+' s…';
 const iv=setInterval(()=>{n--;if(n>0)b.textContent='Patientez '+n+' s…';else{clearInterval(iv);b.disabled=false;b.textContent='Fermer ✕ et continuer'}},1000);
-b.onclick=()=>{f.classList.remove('on');cb()}}
+b.onclick=()=>{f.classList.remove('on');adMuted=false;if(music)musicOn();cb()}}
 if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
 </script>
 </body>
